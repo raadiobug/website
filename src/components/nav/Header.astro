@@ -1,0 +1,81 @@
+---
+import Logo from '@/components/brand/Logo.astro';
+import LangToggle from '@/components/i18n/LangToggle.astro';
+import { ThemeToggle } from '@/components/theme/ThemeToggle';
+import { MobileNav } from '@/components/nav/MobileNav';
+import { languages, dir as dirMap, type Lang } from '@/i18n/ui';
+import { useTranslations, localizedPath, switchLocalePath } from '@/i18n/utils';
+
+interface Props {
+  lang: Lang;
+  pathname: string;
+}
+
+const { lang, pathname } = Astro.props;
+const t = useTranslations(lang);
+const home = localizedPath('/', lang);
+
+const navItems = [
+  { label: t('nav.home'), href: home },
+  { label: t('nav.episodes'), href: localizedPath('/episodes', lang) },
+  { label: t('nav.about'), href: `${home === '/' ? '' : home}/#about` }
+];
+
+const otherLang: Lang = lang === 'fa' ? 'en' : 'fa';
+const langHref = switchLocalePath(pathname, otherLang);
+const themeLabels = { light: t('theme.light'), dark: t('theme.dark'), system: t('theme.system') };
+---
+
+<header
+  class='border-border/60 bg-background/80 sticky top-0 z-40 w-full border-b backdrop-blur-md'
+>
+  <div class='container-page flex h-16 items-center justify-between gap-4'>
+    <a
+      href={home}
+      class='text-foreground shrink-0 transition-opacity hover:opacity-80'
+      aria-label={t('site.name')}
+    >
+      <Logo lang={lang} />
+    </a>
+
+    <nav class='hidden items-center gap-1 md:flex'>
+      {
+        navItems.map(item => (
+          <a
+            href={item.href}
+            class='text-muted-foreground hover:bg-accent hover:text-foreground rounded-md px-3 py-2 text-sm font-medium transition-colors'
+          >
+            {item.label}
+          </a>
+        ))
+      }
+    </nav>
+
+    <div class='flex items-center gap-1'>
+      <div class='hidden items-center gap-1 md:flex'>
+        <LangToggle
+          lang={lang}
+          pathname={pathname}
+        />
+        <ThemeToggle
+          client:load
+          labels={{ ...themeLabels, label: t('theme.label') }}
+          align={dirMap[lang] === 'rtl' ? 'start' : 'end'}
+        />
+      </div>
+      <div class='md:hidden'>
+        <MobileNav
+          client:load
+          items={navItems}
+          menuLabel={t('nav.menu')}
+          themeLabel={t('theme.label')}
+          themeLabels={themeLabels}
+          langLabel={languages[otherLang]}
+          langHref={langHref}
+          langCode={otherLang}
+          dir={dirMap[lang]}
+        />
+      </div>
+    </div>
+  </div>
+</header>

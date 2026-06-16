@@ -1,0 +1,162 @@
+---
+import '@/styles/global.css';
+import ThemeScript from '@/components/theme/ThemeScript.astro';
+import Header from '@/components/nav/Header.astro';
+import Footer from '@/components/nav/Footer.astro';
+import { dir as dirMap, localeTag, type Lang } from '@/i18n/ui';
+import { useTranslations, switchLocalePath, stripLocale } from '@/i18n/utils';
+
+interface Props {
+  lang: Lang;
+  title?: string;
+  description?: string;
+  /** Extra <head> content (structured data, etc.). */
+  ogType?: 'website' | 'article';
+}
+
+const { lang, title, description, ogType = 'website' } = Astro.props;
+const t = useTranslations(lang);
+
+const siteName = t('site.name');
+const pageTitle = title ? `${title} — ${siteName}` : `${siteName} — ${t('site.tagline')}`;
+const desc = description ?? t('site.description');
+
+const pathname = Astro.url.pathname;
+const site = Astro.site ?? new URL('https://radiobug.net');
+const canonical = new URL(pathname, site).href;
+const ogImage = new URL('/og.png', site).href;
+
+// hreflang alternates for the current page in both locales.
+const altFa = new URL(switchLocalePath(pathname, 'fa'), site).href;
+const altEn = new URL(switchLocalePath(pathname, 'en'), site).href;
+const localeFreePath = stripLocale(pathname);
+---
+
+<!doctype html>
+<html
+  lang={lang}
+  dir={dirMap[lang]}
+  class='scroll-pt-20'
+>
+  <head>
+    <meta charset='UTF-8' />
+    <meta
+      name='viewport'
+      content='width=device-width, initial-scale=1'
+    />
+    <ThemeScript />
+
+    <title>{pageTitle}</title>
+    <meta
+      name='description'
+      content={desc}
+    />
+    <link
+      rel='canonical'
+      href={canonical}
+    />
+
+    <link
+      rel='icon'
+      type='image/svg+xml'
+      href='/favicon.svg'
+    />
+    <meta
+      name='theme-color'
+      content='#E63946'
+    />
+    <meta
+      name='generator'
+      content={Astro.generator}
+    />
+
+    <!-- Preload local variable fonts (no CDN) -->
+    <link
+      rel='preload'
+      href='/fonts/Vazirmatn-Variable.woff2'
+      as='font'
+      type='font/woff2'
+      crossorigin
+    />
+    <link
+      rel='preload'
+      href='/fonts/Inter-Variable.woff2'
+      as='font'
+      type='font/woff2'
+      crossorigin
+    />
+
+    <!-- i18n alternates -->
+    <link
+      rel='alternate'
+      hreflang='fa'
+      href={altFa}
+    />
+    <link
+      rel='alternate'
+      hreflang='en'
+      href={altEn}
+    />
+    <link
+      rel='alternate'
+      hreflang='x-default'
+      href={new URL(localeFreePath, site).href}
+    />
+
+    <!-- Open Graph / Twitter -->
+    <meta
+      property='og:type'
+      content={ogType}
+    />
+    <meta
+      property='og:site_name'
+      content={siteName}
+    />
+    <meta
+      property='og:locale'
+      content={localeTag[lang]}
+    />
+    <meta
+      property='og:title'
+      content={pageTitle}
+    />
+    <meta
+      property='og:description'
+      content={desc}
+    />
+    <meta
+      property='og:url'
+      content={canonical}
+    />
+    <meta
+      property='og:image'
+      content={ogImage}
+    />
+    <meta
+      name='twitter:card'
+      content='summary_large_image'
+    />
+    <meta
+      name='twitter:title'
+      content={pageTitle}
+    />
+    <meta
+      name='twitter:description'
+      content={desc}
+    />
+    <meta
+      name='twitter:image'
+      content={ogImage}
+    />
+  </head>
+  <body class='flex min-h-dvh flex-col'>
+    <Header
+      lang={lang}
+      pathname={pathname}
+    />
+    <main class='flex-1'>
+      <slot />
+    </main>
+    <Footer lang={lang} />
+  </body>
+</html>

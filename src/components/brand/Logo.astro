@@ -1,0 +1,56 @@
+---
+import type { Lang } from '@/i18n/ui';
+
+interface Props {
+  lang?: Lang;
+  withWordmark?: boolean;
+  class?: string;
+  markClass?: string;
+}
+
+const {
+  lang = 'fa',
+  withWordmark = true,
+  class: className = '',
+  markClass = 'h-9 w-auto'
+} = Astro.props;
+
+// Bug body stays brand red; the frame + baseline use currentColor so the mark
+// adapts to light/dark themes.
+const wordmark = lang === 'fa' ? 'رادیو باگ' : 'RadioBug';
+---
+
+<span class:list={['inline-flex items-center gap-2.5', className]}>
+  <svg
+    viewBox='0 0 521 672'
+    class={markClass}
+    fill='none'
+    aria-hidden='true'
+    xmlns='http://www.w3.org/2000/svg'
+  >
+    <path
+      fill-rule='evenodd'
+      clip-rule='evenodd'
+      d='M260.481 122.589C183.105 122.589 120.38 185.315 120.38 262.69V402.791C120.38 480.166 183.105 542.891 260.481 542.891C334.961 542.891 395.867 484.772 400.32 411.412L321.649 332.74H400.581V262.69C400.581 185.315 337.856 122.589 260.481 122.589Z'
+      fill='#E63946'
+    ></path>
+    <path
+      fill-rule='evenodd'
+      clip-rule='evenodd'
+      d='M325.989 72.2283C384.283 92.2843 430.47 138.362 450.675 196.587L496.195 151.066L520.962 175.833L461.879 234.916V274.363H461.75V391.116H461.879V430.562L520.962 489.646L496.195 514.412L450.674 468.891C423.351 547.627 348.516 604.149 260.48 604.149C172.444 604.149 97.61 547.628 70.2857 468.894L24.7675 514.412L0.000976562 489.646L59.0845 430.562V391.116H59.2096V274.363H59.0845V234.916L0.000976562 175.833L24.7675 151.066L70.285 196.584C91.0686 136.695 139.341 89.6576 200.002 70.5712C197.379 48.8989 178.92 32.1066 156.54 32.1066H144.865V2.91894H156.54C192.74 2.91894 222.782 29.2783 228.521 63.8499C238.929 62.1894 249.604 61.3267 260.48 61.3267C271.123 61.3267 281.573 62.1528 291.769 63.7443C297.581 27.6051 328.912 0 366.69 0H378.365V35.0252H366.69C345.356 35.0252 327.84 51.375 325.989 72.2283ZM426.724 402.879V262.597C426.724 170.782 352.294 96.352 260.48 96.352C168.665 96.352 94.2349 170.782 94.2349 262.597V402.879C94.2349 494.693 168.665 569.124 260.48 569.124C352.294 569.124 426.724 494.693 426.724 402.879Z'
+      fill='currentColor'
+    ></path>
+    <rect
+      x='142.374'
+      y='637.875'
+      width='236.25'
+      height='34.1249'
+      fill='currentColor'
+    ></rect>
+  </svg>
+  {
+    withWordmark && (
+      <span class='text-lg font-bold tracking-tight whitespace-nowrap'>{wordmark}</span>
+    )
+  }
+</span>
