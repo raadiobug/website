@@ -1,0 +1,11 @@
+# Auto detect text files and perform LF normalization
+* text=auto eol=lf
+
+# Binary assets — never EOL-normalize (would corrupt them)
+*.woff2 binary
+*.png binary
+*.jpg binary
+*.ico binary
+
+# Generated; collapse in diffs
+pnpm-lock.yaml -diff linguist-generated

@@ -1,0 +1,13 @@
+node_modules
+.claude
+.astro
+.next
+out
+dist
+build
+pnpm-lock.yaml
+*.tsbuildinfo
+src/components/ui
+*.woff2
+*.png
+*.svg
