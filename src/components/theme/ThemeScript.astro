@@ -1,0 +1,20 @@
+---
+/**
+ * No-flash theme bootstrap. Runs synchronously in <head> BEFORE first paint so
+ * the correct theme is applied with zero flicker. Default is "system".
+ * Keep this dependency-free and inline — it must not wait on the bundler.
+ */
+---
+
+<script is:inline>
+  (() => {
+    const KEY = 'radiobug-theme';
+    const stored = localStorage.getItem(KEY);
+    const theme =
+      stored === 'light' || stored === 'dark' || stored === 'system' ? stored : 'system';
+    const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const isDark = theme === 'dark' || (theme === 'system' && systemDark);
+    document.documentElement.classList.toggle('dark', isDark);
+    document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+  })();
+</script>
