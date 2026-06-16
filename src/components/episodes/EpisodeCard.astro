@@ -1,0 +1,66 @@
+---
+import { ArrowLeft, ArrowRight, CalendarDays, Mic } from '@lucide/astro';
+import type { Lang } from '@/i18n/ui';
+import { dir as dirMap } from '@/i18n/ui';
+import { useTranslations, formatNumber } from '@/i18n/utils';
+import {
+  episodeTitle,
+  episodeDescription,
+  guestName,
+  episodeHref,
+  formatDate,
+  type Episode
+} from '@/lib/episodes';
+
+interface Props {
+  episode: Episode;
+  lang: Lang;
+}
+
+const { episode, lang } = Astro.props;
+const t = useTranslations(lang);
+const href = episodeHref(episode, lang);
+const Arrow = dirMap[lang] === 'rtl' ? ArrowLeft : ArrowRight;
+---
+
+<a
+  href={href}
+  class='group border-border bg-card hover:border-primary/40 hover:shadow-primary/5 flex h-full flex-col gap-4 rounded-xl border p-6 transition-all hover:-translate-y-0.5 hover:shadow-lg'
+>
+  <div class='flex items-center justify-between gap-3'>
+    <span
+      class='bg-primary/10 text-primary inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold'
+    >
+      <Mic class='size-3.5' />
+      {t('episodes.episode')}
+      {formatNumber(episode.data.number, lang)}
+    </span>
+    <time
+      datetime={episode.data.publishDate.toISOString()}
+      class='text-muted-foreground inline-flex items-center gap-1.5 text-xs'
+    >
+      <CalendarDays class='size-3.5' />
+      {formatDate(episode.data.publishDate, lang)}
+    </time>
+  </div>
+
+  <div class='flex flex-col gap-1.5'>
+    <h3 class='group-hover:text-primary text-lg font-bold tracking-tight'>
+      {episodeTitle(episode, lang)}
+    </h3>
+    <p class='text-muted-foreground text-sm font-medium'>
+      {t('episodes.guest')}: {guestName(episode, lang)}
+    </p>
+  </div>
+
+  <p class='text-muted-foreground line-clamp-3 flex-1 text-sm leading-relaxed'>
+    {episodeDescription(episode, lang)}
+  </p>
+
+  <span class='text-primary inline-flex items-center gap-1.5 text-sm font-semibold'>
+    {t('episodes.listen')}
+    <Arrow
+      class='size-4 transition-transform group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5'
+    />
+  </span>
+</a>

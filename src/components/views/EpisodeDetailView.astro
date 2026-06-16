@@ -1,0 +1,138 @@
+---
+import { render } from 'astro:content';
+import { ArrowLeft, ArrowRight, CalendarDays, Clock, Mic } from '@lucide/astro';
+import BrandIcon from '@/components/brand/BrandIcon.astro';
+import ListenButtons from '@/components/episodes/ListenButtons.astro';
+import { EpisodePlayer } from '@/components/episodes/EpisodePlayer';
+import { dir as dirMap, type Lang } from '@/i18n/ui';
+import { useTranslations, localizedPath, formatNumber } from '@/i18n/utils';
+import {
+  episodeTitle,
+  episodeDescription,
+  guestName,
+  guestRole,
+  formatDate,
+  listenLinks,
+  primaryEmbed,
+  type Episode
+} from '@/lib/episodes';
+
+interface Props {
+  lang: Lang;
+  episode: Episode;
+}
+
+const { lang, episode } = Astro.props;
+const t = useTranslations(lang);
+
+const { Content } = await render(episode);
+const hasNotes = (episode.body ?? '').trim().length > 0;
+
+const Back = dirMap[lang] === 'rtl' ? ArrowRight : ArrowLeft;
+const embed = primaryEmbed(episode);
+const links = listenLinks(episode);
+const linkItems = links.map(l => ({ key: l.key, label: l.label, href: l.href }));
+const guestLinkedin = episode.data.guest.linkedin;
+const role = guestRole(episode, lang);
+---
+
+<article class='container-page py-12 sm:py-16'>
+  <a
+    href={localizedPath('/episodes', lang)}
+    class='text-muted-foreground hover:text-foreground mb-8 inline-flex items-center gap-1.5 text-sm font-medium transition-colors'
+  >
+    <Back class='size-4' />
+    {t('episodes.back')}
+  </a>
+
+  <div class='mx-auto flex max-w-3xl flex-col gap-8'>
+    <header class='flex flex-col gap-4'>
+      <div class='text-muted-foreground flex flex-wrap items-center gap-3 text-sm'>
+        <span
+          class='bg-primary/10 text-primary inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-semibold'
+        >
+          <Mic class='size-3.5' />
+          {t('episodes.episode')}
+          {formatNumber(episode.data.number, lang)}
+        </span>
+        <span class='inline-flex items-center gap-1.5'>
+          <CalendarDays class='size-3.5' />
+          {formatDate(episode.data.publishDate, lang)}
+        </span>
+        {
+          episode.data.duration && (
+            <span class='inline-flex items-center gap-1.5'>
+              <Clock class='size-3.5' />
+              {episode.data.duration}
+            </span>
+          )
+        }
+      </div>
+
+      <h1 class='text-3xl font-extrabold tracking-tight sm:text-4xl'>
+        {episodeTitle(episode, lang)}
+      </h1>
+
+      <div class='flex flex-wrap items-center gap-3'>
+        <span class='text-base font-medium'>
+          {t('episodes.guest')}: {guestName(episode, lang)}
+          {role && <span class='text-muted-foreground'>· {role}</span>}
+        </span>
+        {
+          guestLinkedin && (
+            <a
+              href={guestLinkedin}
+              target='_blank'
+              rel='noopener noreferrer'
+              class='border-border text-muted-foreground hover:border-primary hover:text-primary inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-medium transition-colors'
+            >
+              <BrandIcon
+                name='linkedin'
+                class='size-3.5'
+              />
+              {t('episodes.guestProfile')}
+            </a>
+          )
+        }
+      </div>
+    </header>
+
+    <p class='text-muted-foreground text-lg leading-relaxed'>
+      {episodeDescription(episode, lang)}
+    </p>
+
+    <!-- Player: embed when available, else listen links -->
+    {
+      embed ? (
+        <EpisodePlayer
+          client:visible
+          src={embed.src}
+          platform={embed.platform as 'spotify' | 'youtube' | 'castbox'}
+          title={episodeTitle(episode, lang)}
+          labels={{
+            loading: t('state.loading'),
+            error: t('state.playerError'),
+            open: t('state.openInstead')
+          }}
+          links={linkItems.map(l => ({ label: l.label, href: l.href }))}
+        />
+      ) : (
+        <div class='flex flex-col gap-3'>
+          <span class='text-muted-foreground text-sm font-medium'>{t('hero.listenOn')}</span>
+          <ListenButtons items={linkItems} />
+        </div>
+      )
+    }
+
+    {
+      hasNotes && (
+        <section class='flex flex-col gap-3'>
+          <h2 class='text-xl font-bold tracking-tight'>{t('episodes.showNotes')}</h2>
+          <div class='prose-sm text-muted-foreground [&_a]:text-primary max-w-none leading-relaxed [&_a]:underline'>
+            <Content />
+          </div>
+        </section>
+      )
+    }
+  </div>
+</article>

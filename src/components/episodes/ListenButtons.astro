@@ -1,0 +1,41 @@
+---
+import { ExternalLink } from '@lucide/astro';
+import BrandIcon from '@/components/brand/BrandIcon.astro';
+import type { SocialKey } from '@/data/socials';
+
+interface Item {
+  key: SocialKey;
+  label: string;
+  href: string;
+}
+
+interface Props {
+  items: Item[];
+  prefix?: string;
+}
+
+const { items, prefix } = Astro.props;
+---
+
+<div class='flex flex-wrap gap-3'>
+  {
+    items.map(item => (
+      <a
+        href={item.href}
+        target='_blank'
+        rel='noopener noreferrer'
+        class='border-border bg-card hover:border-primary hover:text-primary inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-semibold transition-all hover:-translate-y-0.5'
+      >
+        <BrandIcon
+          name={item.key}
+          class='size-5'
+        />
+        <span>
+          {prefix}
+          {item.label}
+        </span>
+        <ExternalLink class='size-3.5 opacity-50' />
+      </a>
+    ))
+  }
+</div>

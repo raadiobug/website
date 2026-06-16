@@ -1,0 +1,102 @@
+---
+import { ArrowLeft, ArrowRight, Sparkles } from '@lucide/astro';
+import Logo from '@/components/brand/Logo.astro';
+import EpisodeCard from '@/components/episodes/EpisodeCard.astro';
+import ListenButtons from '@/components/episodes/ListenButtons.astro';
+import { dir as dirMap, type Lang } from '@/i18n/ui';
+import { useTranslations, localizedPath } from '@/i18n/utils';
+import { getEpisodes } from '@/lib/episodes';
+import { listenPlatforms } from '@/data/socials';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const episodes = await getEpisodes();
+const latest = episodes.slice(0, 3);
+
+const Arrow = dirMap[lang] === 'rtl' ? ArrowLeft : ArrowRight;
+const listenItems = listenPlatforms.map(p => ({ key: p.key, label: p.label, href: p.href }));
+const allHref = localizedPath('/episodes', lang);
+---
+
+<!-- Hero -->
+<section class='relative overflow-hidden'>
+  <div
+    class='pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(60%_50%_at_50%_0%,_oklch(0.62_0.21_22.5_/_0.12),_transparent)]'
+  >
+  </div>
+  <div class='container-page flex flex-col items-center gap-8 py-20 text-center sm:py-28'>
+    <span
+      class='border-border bg-card text-muted-foreground inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm font-medium'
+    >
+      <Sparkles class='text-primary size-4' />
+      {t('hero.badge')}
+    </span>
+
+    <Logo
+      lang={lang}
+      withWordmark={false}
+      markClass='h-24 w-auto sm:h-28'
+    />
+
+    <div class='flex flex-col gap-3'>
+      <h1 class='text-4xl font-extrabold tracking-tight sm:text-6xl'>{t('site.name')}</h1>
+      <p class='text-muted-foreground mx-auto max-w-2xl text-lg sm:text-xl'>
+        {t('site.tagline')}
+      </p>
+    </div>
+
+    <div class='flex flex-col items-center gap-4'>
+      <span class='text-muted-foreground text-sm font-medium'>{t('hero.listenOn')}</span>
+      <ListenButtons items={listenItems} />
+    </div>
+  </div>
+</section>
+
+<!-- Latest episodes -->
+<section class='container-page py-12'>
+  <div class='mb-8 flex items-end justify-between gap-4'>
+    <h2 class='text-2xl font-bold tracking-tight sm:text-3xl'>{t('hero.latest')}</h2>
+    <a
+      href={allHref}
+      class='text-primary inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold hover:underline'
+    >
+      {t('hero.viewAll')}
+      <Arrow class='size-4' />
+    </a>
+  </div>
+
+  {
+    latest.length > 0 ? (
+      <div class='grid gap-6 sm:grid-cols-2 lg:grid-cols-3'>
+        {latest.map(ep => (
+          <EpisodeCard
+            episode={ep}
+            lang={lang}
+          />
+        ))}
+      </div>
+    ) : (
+      <p class='border-border text-muted-foreground rounded-xl border border-dashed p-12 text-center'>
+        {t('episodes.empty')}
+      </p>
+    )
+  }
+</section>
+
+<!-- About -->
+<section
+  id='about'
+  class='container-page scroll-mt-24 py-12'
+>
+  <div
+    class='border-border bg-card/50 mx-auto max-w-3xl rounded-2xl border p-8 text-center sm:p-12'
+  >
+    <h2 class='mb-4 text-2xl font-bold tracking-tight sm:text-3xl'>{t('about.title')}</h2>
+    <p class='text-muted-foreground text-lg leading-relaxed'>{t('about.body')}</p>
+  </div>
+</section>

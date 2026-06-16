@@ -1,0 +1,14 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import EpisodesView from '@/components/views/EpisodesView.astro';
+import { useTranslations } from '@/i18n/utils';
+
+const t = useTranslations('fa');
+---
+
+<BaseLayout
+  lang='fa'
+  title={t('episodes.title')}
+>
+  <EpisodesView lang='fa' />
+</BaseLayout>

@@ -1,0 +1,41 @@
+---
+import EpisodeCard from '@/components/episodes/EpisodeCard.astro';
+import type { Lang } from '@/i18n/ui';
+import { useTranslations, formatNumber } from '@/i18n/utils';
+import { getEpisodes } from '@/lib/episodes';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const episodes = await getEpisodes();
+---
+
+<section class='container-page py-16'>
+  <header class='mb-10 flex flex-col gap-2'>
+    <h1 class='text-3xl font-extrabold tracking-tight sm:text-4xl'>{t('episodes.title')}</h1>
+    <p class='text-muted-foreground text-lg'>
+      {formatNumber(episodes.length, lang)}
+      {t('episodes.count')} · {t('episodes.subtitle')}
+    </p>
+  </header>
+
+  {
+    episodes.length > 0 ? (
+      <div class='grid gap-6 sm:grid-cols-2 lg:grid-cols-3'>
+        {episodes.map(ep => (
+          <EpisodeCard
+            episode={ep}
+            lang={lang}
+          />
+        ))}
+      </div>
+    ) : (
+      <p class='border-border text-muted-foreground rounded-xl border border-dashed p-12 text-center'>
+        {t('episodes.empty')}
+      </p>
+    )
+  }
+</section>

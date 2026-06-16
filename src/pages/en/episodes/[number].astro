@@ -1,0 +1,28 @@
+---
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import EpisodeDetailView from '@/components/views/EpisodeDetailView.astro';
+import { getEpisodes, episodeTitle, episodeDescription } from '@/lib/episodes';
+
+export const getStaticPaths = (async () => {
+  const episodes = await getEpisodes();
+  return episodes.map(episode => ({
+    params: { number: String(episode.data.number) },
+    props: { episode }
+  }));
+}) satisfies GetStaticPaths;
+
+const { episode } = Astro.props;
+---
+
+<BaseLayout
+  lang='en'
+  title={episodeTitle(episode, 'en')}
+  description={episodeDescription(episode, 'en')}
+  ogType='article'
+>
+  <EpisodeDetailView
+    lang='en'
+    episode={episode}
+  />
+</BaseLayout>
